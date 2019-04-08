@@ -20,7 +20,6 @@ public class Server {
         DatagramPacket packet = new DatagramPacket(new byte[516], 516);
         try {
             System.out.println("Listening");
-            udpSocket.setSoTimeout(5000);
             udpSocket.receive(packet);
 
         } catch (IOException e) {
