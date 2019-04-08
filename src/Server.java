@@ -14,10 +14,9 @@ public class Server {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        receive();
     }
 
-    private Packet receive() {
+    public Packet receive() {
         DatagramPacket packet = new DatagramPacket(new byte[516], 516);
         try {
             System.out.println("Listening");
