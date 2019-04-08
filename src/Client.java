@@ -18,12 +18,12 @@ public class Client {
 
     public void send(String fileName) {
         try {
-            socket = new DatagramSocket(port, InetAddress.getByName(address));
+            socket = new DatagramSocket();
             File file = new File(fileName);
             byte[] data = Files.readAllBytes(file.toPath());
 
             Packet reqPacket = new Packet(fileName);
-            DatagramPacket packet = new DatagramPacket(reqPacket.getBytes(), reqPacket.getBytes().length);
+            DatagramPacket packet = new DatagramPacket(reqPacket.getBytes(), reqPacket.getBytes().length, InetAddress.getByName(address), port);
 
             //Send WRQ
             socket.send(packet);
@@ -32,7 +32,7 @@ public class Client {
 
 
             //Send data while receiving ACKs in between each DATA packet
-            packet.setLength(512);
+            packet.setLength(516);
             int dataLeft = data.length;
             int blockNumber = 0;
             byte[] blockData = new byte[512];

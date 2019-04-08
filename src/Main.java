@@ -21,7 +21,8 @@ public class Main {
         } else {
             getAddress();
             server.getPort();
-            server.receive();
+            Packet receivedPacket = server.receive();
+            System.out.println(receivedPacket.toString());
         }
     }
 

@@ -87,4 +87,13 @@ public class Packet {
     public byte[] getBytes() {
         return packetBytes;
     }
+
+    public String toString() {
+        String s = "opcode: " + opCode + ", MODE: " + MODE + ", data : ";
+        for (byte b : packetBytes){
+            s += b + " ";
+        }
+
+        return s;
+    }
 }
