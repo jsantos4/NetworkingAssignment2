@@ -14,21 +14,21 @@ public class Server {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        recieve();
+        receive();
     }
 
-    private void recieve() {
+    private Packet receive() {
+        DatagramPacket packet = new DatagramPacket(new byte[516], 516);
         try {
             System.out.println("Listening");
+            udpSocket.setSoTimeout(5000);
+            udpSocket.receive(packet);
 
-            byte[] nameBytes = new byte[4];
-            DatagramPacket fileName = new DatagramPacket(nameBytes, 4);
-            udpSocket.receive(fileName);
-
-            
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return Packet.getPacket(packet);
 
     }
 
