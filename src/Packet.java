@@ -61,8 +61,8 @@ public class Packet {
 
         if (data[1] == 0) {                             // If packet is WRQ
             StringBuffer buffer = new StringBuffer();
-            int dataByte = 2;  // Start after opcode
-            while ((int) data[dataByte] != 0) {
+            int dataByte = 1;  // Start after opcode
+            while ((int) data[++dataByte] != 0) {
                 buffer.append((char)data[dataByte]);
             }
 
@@ -89,7 +89,7 @@ public class Packet {
     }
 
     public String toString() {
-        String s = "opcode: " + opCode + ", MODE: " + MODE + ", data : ";
+        String s = "opcode: " + opCode + ", MODE: " + MODE + ", data: ";
         for (byte b : packetBytes){
             s += b + " ";
         }
