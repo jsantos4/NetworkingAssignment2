@@ -21,6 +21,7 @@ public class Server {
         try {
             System.out.println("Listening");
             udpSocket.receive(packet);
+            System.out.println("Packet received");
 
         } catch (IOException e) {
             e.printStackTrace();
