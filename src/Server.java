@@ -19,6 +19,7 @@ public class Server {
 
     public Packet receive() {
         DatagramPacket packet = new DatagramPacket(new byte[516], 516);
+        int dataSize = 516;
         try {
             System.out.println("Listening");
             do {
@@ -32,8 +33,10 @@ public class Server {
                     byte[] blockNumber = {packet.getData()[2], packet.getData()[3]};
                     Packet ACK = new Packet(blockNumber);
                     udpSocket.send(new DatagramPacket(ACK.getBytes(), 4, packet.getAddress(), packet.getPort()));
+                    dataSize = packet.getData().length;
+
                 }
-            } while (packet.getData().length == 516);
+            } while (dataSize == 516);
 
         } catch (IOException e) {
             e.printStackTrace();
