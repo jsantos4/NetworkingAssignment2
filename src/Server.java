@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -20,19 +21,19 @@ public class Server {
         DatagramPacket packet = new DatagramPacket(new byte[516], 516);
         try {
             System.out.println("Listening");
-            udpSocket.receive(packet);
-            System.out.println("Packet received");
+            do {
+                udpSocket.receive(packet);
+                if (packet.getData()[1] == 0) {
+                    byte[] blockNumber = {0, 0};
+                    Packet ACK = new Packet(blockNumber);
+                    udpSocket.send(new DatagramPacket(ACK.getBytes(), 4, packet.getAddress(), packet.getPort()));
 
-            if (packet.getData()[1] == 0) {
-                byte[] blockNumber = {0, 0};
-                Packet ACK = new Packet(blockNumber);
-                udpSocket.send(new DatagramPacket(ACK.getBytes(), 4, packet.getAddress(), packet.getPort()));
-
-            } else if (packet.getData()[1] == 1) {
-                byte[] blockNumber = {packet.getData()[2], packet.getData()[3]};
-                Packet ACK = new Packet(blockNumber);
-                udpSocket.send(new DatagramPacket(ACK.getBytes(), 4, packet.getAddress(), packet.getPort()));
-            }
+                } else if (packet.getData()[1] == 1) {
+                    byte[] blockNumber = {packet.getData()[2], packet.getData()[3]};
+                    Packet ACK = new Packet(blockNumber);
+                    udpSocket.send(new DatagramPacket(ACK.getBytes(), 4, packet.getAddress(), packet.getPort()));
+                }
+            } while (packet.getData().length == 516);
 
         } catch (IOException e) {
             e.printStackTrace();

@@ -13,23 +13,15 @@ public class Main {
 
         if (side == 0) {
             System.out.println("Enter IP address and port (address <ENTER> port <ENTER>)");
-            String dest = "129.3.20.26"; //scanner.next();
+            String dest = "68.127.58.79"; //scanner.next();
             int udpPort = scanner.nextInt();
             Client client = new Client(dest, udpPort);
             System.out.println("Enter file path");
-            //client.send(scanner.next());
-            client.send("C:/Users/BAgunner300/Documents/csc445/NetworkingAssignment2/resources/Interior2.jpg");
+            client.send("/Documents/csc445/assignment2/NetworkingAssignment2/resources/Interior2.jpg");  //client.send(scanner.next());
         } else {
             getAddress();
             server.getPort();
-            Packet receivedPacket = server.receive();
-            System.out.println(receivedPacket.toString());
-            int packetSize = 516;
-            while(packetSize == 516) {
-                receivedPacket = server.receive();
-                packetSize = receivedPacket.getBytes().length;
-                System.out.println("opcode: " + receivedPacket.getBytes()[1]);
-            }
+            server.receive();
         }
     }
 
