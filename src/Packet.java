@@ -62,7 +62,7 @@ public class Packet {
         if (data[1] == 0) {                             // If packet is WRQ
             StringBuffer buffer = new StringBuffer();
             int dataByte = 2;  // Start after opcode
-            while (data[dataByte] != 0) {
+            while ((int) data[dataByte] != 0) {
                 buffer.append((char)data[dataByte]);
             }
 

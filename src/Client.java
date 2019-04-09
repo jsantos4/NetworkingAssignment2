@@ -33,11 +33,11 @@ public class Client {
 
             //Send data while receiving ACKs in between each DATA packet
             int dataLeft = data.length;
-            int blockNumber = 0;
+            short blockNumber = 0;
             byte[] blockData = new byte[512];
             while ((dataLeft -= 512) >= 512) {
                 System.arraycopy(data, blockNumber * 512, blockData, 0, 512);
-                Packet nextData = new Packet(blockData, ByteBuffer.allocate(2).putInt(++blockNumber).array());
+                Packet nextData = new Packet(blockData, ByteBuffer.allocate(2).putShort(++blockNumber).array());
                 DatagramPacket dataPacket = new DatagramPacket(nextData.getBytes(), nextData.getBytes().length, InetAddress.getByName(address), port);
                 socket.send(dataPacket);
 

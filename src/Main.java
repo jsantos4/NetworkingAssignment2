@@ -13,11 +13,12 @@ public class Main {
 
         if (side == 0) {
             System.out.println("Enter IP address and port (address <ENTER> port <ENTER>)");
-            String dest = scanner.next();
+            String dest = "129.3.20.26"; //scanner.next();
             int udpPort = scanner.nextInt();
             Client client = new Client(dest, udpPort);
             System.out.println("Enter file path");
-            client.send(scanner.next());
+            //client.send(scanner.next());
+            client.send("C:/Users/BAgunner300/Documents/csc445/NetworkingAssignment2/resources/Interior2.jpg");
         } else {
             getAddress();
             server.getPort();
