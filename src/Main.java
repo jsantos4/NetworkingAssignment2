@@ -24,6 +24,12 @@ public class Main {
             server.getPort();
             Packet receivedPacket = server.receive();
             System.out.println(receivedPacket.toString());
+            int packetSize = 516;
+            while(packetSize == 516) {
+                receivedPacket = server.receive();
+                packetSize = receivedPacket.getBytes().length;
+                System.out.println("opcode: " + receivedPacket.getBytes()[1]);
+            }
         }
     }
 

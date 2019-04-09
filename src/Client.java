@@ -47,7 +47,7 @@ public class Client {
 
             }  //Once out of loop, next data packet has less than 512 bytes of data
             System.arraycopy(data, blockNumber * 512, blockData, 0, dataLeft);
-            Packet nextData = new Packet(blockData, ByteBuffer.allocate(2).putInt(++blockNumber).array());
+            Packet nextData = new Packet(blockData, ByteBuffer.allocate(2).putShort(++blockNumber).array());
             packet.setData(nextData.getBytes());
             socket.send(packet);
 
