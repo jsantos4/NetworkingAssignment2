@@ -17,7 +17,7 @@ public class Main {
             int udpPort = scanner.nextInt();
             Client client = new Client(dest, udpPort);
             System.out.println("Enter file path");
-            client.send("/Documents/csc445/assignment2/NetworkingAssignment2/resources/Interior2.jpg");  //client.send(scanner.next());
+            client.send("Documents/csc445/assignment2/NetworkingAssignment2/resources/Interior2.jpg");  //client.send(scanner.next());
         } else {
             getAddress();
             server.getPort();
