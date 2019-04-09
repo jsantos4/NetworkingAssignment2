@@ -36,6 +36,7 @@ public class Server {
                     dataSize = packet.getData().length;
 
                 }
+                System.out.println((int) packet.getData()[3]);
             } while (dataSize == 516);
 
         } catch (IOException e) {
