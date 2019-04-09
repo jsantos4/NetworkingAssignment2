@@ -1,4 +1,5 @@
 import java.net.DatagramPacket;
+import java.nio.ByteBuffer;
 
 public class Packet {
 
@@ -83,6 +84,10 @@ public class Packet {
 
     public byte[] getBytes() {
         return packetBytes;
+    }
+
+    public int getBlockNumber() {
+        return ((packetBytes[2] & 0xff) << 8) | (packetBytes[3] & 0xff);
     }
 
     public String toString() {

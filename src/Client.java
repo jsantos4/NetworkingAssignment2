@@ -43,6 +43,10 @@ public class Client {
                 socket.send(dataPacket);
                 //Receive Ack
                 socket.receive(response);
+                while (Packet.getPacket(response).getBlockNumber() != nextData.getBlockNumber()) {
+                    socket.send(dataPacket);
+                    socket.receive(response);
+                }
                 //if received packet opcode = 2 loop again, if opcode = 3 print error code and try again until response is ACK
                 while (response.getData()[1] == (byte) 3) {
                     System.out.println("Error code: " + response.getData()[3]);
@@ -56,7 +60,7 @@ public class Client {
             DatagramPacket finalPacket = new DatagramPacket(nextData.getBytes(), nextData.getBytes().length, InetAddress.getByName(address), port);
             socket.send(finalPacket);
             socket.receive(response);
-            System.out.println(response.toString());
+            System.out.println(Packet.getPacket(packet).toString());
             while (response.getData()[1] == (byte) 3) {
                 System.out.println("Error code: " + response.getData()[3]);
                 socket.send(finalPacket);
