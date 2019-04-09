@@ -35,21 +35,32 @@ public class Client {
             int dataLeft = data.length;
             short blockNumber = 0;
             byte[] blockData = new byte[512];
+            DatagramPacket response = new DatagramPacket(new byte[516], 516);
             while ((dataLeft -= 512) >= 512) {
                 System.arraycopy(data, blockNumber * 512, blockData, 0, 512);
                 Packet nextData = new Packet(blockData, ByteBuffer.allocate(2).putShort(++blockNumber).array());
                 DatagramPacket dataPacket = new DatagramPacket(nextData.getBytes(), nextData.getBytes().length, InetAddress.getByName(address), port);
                 socket.send(dataPacket);
-
                 //Receive Ack
-                //socket.receive();
-                //if received packet opcode = 2 loop again, if opcode = 3 figure some shit out cuz we gotta errur
+                socket.receive(response);
+                //if received packet opcode = 2 loop again, if opcode = 3 print error code and try again until response is ACK
+                while (response.getData()[1] == (byte) 3) {
+                    System.out.println("Error code: " + response.getData()[3]);
+                    socket.send(dataPacket);
+                    socket.receive(response);
+                }
 
             }  //Once out of loop, next data packet has less than 512 bytes of data
             System.arraycopy(data, blockNumber * 512, blockData, 0, dataLeft);
             Packet nextData = new Packet(blockData, ByteBuffer.allocate(2).putShort(++blockNumber).array());
-            packet.setData(nextData.getBytes());
-            socket.send(packet);
+            DatagramPacket finalPacket = new DatagramPacket(nextData.getBytes(), nextData.getBytes().length, InetAddress.getByName(address), port);
+            socket.send(finalPacket);
+            socket.receive(response);
+            while (response.getData()[1] == (byte) 3) {
+                System.out.println("Error code: " + response.getData()[3]);
+                socket.send(finalPacket);
+                socket.receive(response);
+            }
 
         } catch (IOException e) {
             e.printStackTrace();

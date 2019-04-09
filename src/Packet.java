@@ -1,7 +1,4 @@
-import java.io.*;
 import java.net.DatagramPacket;
-import java.nio.file.Files;
-import java.util.*;
 
 public class Packet {
 
