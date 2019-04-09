@@ -17,7 +17,7 @@ public class Server {
         }
     }
 
-    public Packet receive() {
+    public void receive() {
         DatagramPacket packet = new DatagramPacket(new byte[516], 516);
         int dataSize = 516;
         try {
@@ -36,14 +36,12 @@ public class Server {
                     dataSize = packet.getData().length;
 
                 }
-                System.out.println((int) packet.getData()[3]);
+                System.out.println(packet.getData()[3]);
             } while (dataSize == 516);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        return Packet.getPacket(packet);
 
     }
 
