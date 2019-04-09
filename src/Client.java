@@ -56,6 +56,7 @@ public class Client {
             DatagramPacket finalPacket = new DatagramPacket(nextData.getBytes(), nextData.getBytes().length, InetAddress.getByName(address), port);
             socket.send(finalPacket);
             socket.receive(response);
+            System.out.println(response.toString());
             while (response.getData()[1] == (byte) 3) {
                 System.out.println("Error code: " + response.getData()[3]);
                 socket.send(finalPacket);

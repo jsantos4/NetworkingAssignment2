@@ -3,6 +3,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class Server {
     private ServerSocket tcpSocket;
@@ -34,9 +36,11 @@ public class Server {
                     Packet ACK = new Packet(blockNumber);
                     udpSocket.send(new DatagramPacket(ACK.getBytes(), 4, packet.getAddress(), packet.getPort()));
                     dataSize = packet.getData().length;
-
+                    ByteBuffer byteBuffer = ByteBuffer.allocate(2);
+                    byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+                    byteBuffer.put(blockNumber[0], blockNumber[1]);
+                    System.out.println(byteBuffer.getShort());
                 }
-                System.out.println(packet.getData()[3]);
             } while (dataSize == 516);
 
         } catch (IOException e) {
