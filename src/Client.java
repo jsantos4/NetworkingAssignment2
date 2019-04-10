@@ -23,7 +23,7 @@ public class Client {
             byte[] data = Files.readAllBytes(file.toPath());
 
             Packet reqPacket = new Packet(fileName);
-            DatagramPacket packet = new DatagramPacket(reqPacket.getBytes(), reqPacket.getBytes().length, InetAddress.getByName(address), port);
+            DatagramPacket packet = new DatagramPacket(reqPacket.getBytes(), reqPacket.getBytes().length, InetAddress.getLocalHost(), port);    //Change back to getByName(address)
             DatagramPacket response = new DatagramPacket(new byte[516], 516);
 
             //Send WRQ
@@ -44,7 +44,7 @@ public class Client {
             while ((dataLeft -= 512) >= 512) {
                 System.arraycopy(data, blockNumber * 512, blockData, 0, 512);
                 Packet nextData = new Packet(blockData, ByteBuffer.allocate(2).putShort(++blockNumber).array());
-                DatagramPacket dataPacket = new DatagramPacket(nextData.getBytes(), nextData.getBytes().length, InetAddress.getByName(address), port);
+                DatagramPacket dataPacket = new DatagramPacket(nextData.getBytes(), nextData.getBytes().length, InetAddress.getLocalHost(), port);  //Change back to getByName(address)
                 socket.send(dataPacket);
                 System.out.println("Data packet: " + nextData.getBlockNumber());
                 //Receive Ack
@@ -65,7 +65,7 @@ public class Client {
             byte[] finalBlockData = new byte[dataLeft];
             System.arraycopy(data, blockNumber * 512, finalBlockData, 0, dataLeft);
             Packet nextData = new Packet(finalBlockData, ByteBuffer.allocate(2).putShort(++blockNumber).array());
-            DatagramPacket finalPacket = new DatagramPacket(nextData.getBytes(), nextData.getBytes().length, InetAddress.getByName(address), port);
+            DatagramPacket finalPacket = new DatagramPacket(nextData.getBytes(), nextData.getBytes().length, InetAddress.getLocalHost(), port); //Change back to getByName(address)
             socket.send(finalPacket);
             socket.receive(response);
             System.out.println(Packet.getPacket(packet).toString());

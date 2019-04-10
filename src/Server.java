@@ -35,8 +35,7 @@ public class Server {
                     byte[] blockNumber = {packet.getData()[2], packet.getData()[3]};
                     Packet ACK = new Packet(blockNumber);
                     udpSocket.send(new DatagramPacket(ACK.getBytes(), 4, packet.getAddress(), packet.getPort()));
-                    dataSize = Packet.getPacket(packet).getBytes().length;
-                    System.out.println(blockNumber + ", " + dataSize);
+                    dataSize = packet.getLength();
                 }
             } while (dataSize == 516);
 
