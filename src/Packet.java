@@ -5,10 +5,12 @@ public class Packet {
     private byte[] packetBytes;
     private byte opCode; // type 0 = request, 1 = data, 2 = acknowledgement, 3 = error
     private final String MODE = "octet"; // Mode field of request packet
+    private String fileName;
 
     //WRQ packet
     public Packet(String fileName) {
         this.opCode = 0;
+        this.fileName = fileName;
 
         this.packetBytes = new byte[4 + fileName.length() + MODE.length()];  // Length of packet will be: opcode (2 bytes), plus 2 "0" bytes, plus length of MODE (always "octet"), plus length of file name
 
@@ -84,6 +86,10 @@ public class Packet {
 
     public byte[] getBytes() {
         return packetBytes;
+    }
+
+    public String getFileName() {
+        return fileName;
     }
 
     public int getBlockNumber() {
