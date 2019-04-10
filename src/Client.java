@@ -24,25 +24,32 @@ public class Client {
 
             Packet reqPacket = new Packet(fileName);
             DatagramPacket packet = new DatagramPacket(reqPacket.getBytes(), reqPacket.getBytes().length, InetAddress.getByName(address), port);
+            DatagramPacket response = new DatagramPacket(new byte[516], 516);
 
             //Send WRQ
             socket.send(packet);
 
             //Receive initial ACK or ERR
-
+            socket.receive(response);
+            System.out.println("ACK packet: " + Packet.getPacket(response).getBlockNumber());
+            while (Packet.getPacket(response).getBlockNumber() != 0) {
+                socket.send(packet);
+                socket.receive(response);
+            }
 
             //Send data while receiving ACKs in between each DATA packet
             int dataLeft = data.length;
             short blockNumber = 0;
             byte[] blockData = new byte[512];
-            DatagramPacket response = new DatagramPacket(new byte[516], 516);
             while ((dataLeft -= 512) >= 512) {
                 System.arraycopy(data, blockNumber * 512, blockData, 0, 512);
                 Packet nextData = new Packet(blockData, ByteBuffer.allocate(2).putShort(++blockNumber).array());
                 DatagramPacket dataPacket = new DatagramPacket(nextData.getBytes(), nextData.getBytes().length, InetAddress.getByName(address), port);
                 socket.send(dataPacket);
+                System.out.println("Data packet: " + nextData.getBlockNumber());
                 //Receive Ack
                 socket.receive(response);
+                System.out.println("ACK packet: " + Packet.getPacket(response).getBlockNumber());
                 while (Packet.getPacket(response).getBlockNumber() != nextData.getBlockNumber()) {
                     socket.send(dataPacket);
                     socket.receive(response);
@@ -55,8 +62,9 @@ public class Client {
                 }
 
             }  //Once out of loop, next data packet has less than 512 bytes of data
-            System.arraycopy(data, blockNumber * 512, blockData, 0, dataLeft);
-            Packet nextData = new Packet(blockData, ByteBuffer.allocate(2).putShort(++blockNumber).array());
+            byte[] finalBlockData = new byte[dataLeft];
+            System.arraycopy(data, blockNumber * 512, finalBlockData, 0, dataLeft);
+            Packet nextData = new Packet(finalBlockData, ByteBuffer.allocate(2).putShort(++blockNumber).array());
             DatagramPacket finalPacket = new DatagramPacket(nextData.getBytes(), nextData.getBytes().length, InetAddress.getByName(address), port);
             socket.send(finalPacket);
             socket.receive(response);

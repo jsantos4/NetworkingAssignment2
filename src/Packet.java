@@ -36,7 +36,8 @@ public class Packet {
         this.packetBytes[packetByte] = 0;
         this.packetBytes[++packetByte] = this.opCode;
 
-        System.arraycopy(blockNumber, 0, data, ++packetByte, blockNumber.length);
+        System.arraycopy(blockNumber, 0, packetBytes, ++packetByte, blockNumber.length);
+        ++packetByte;
 
         System.arraycopy(data, 0, packetBytes, ++packetByte, data.length);
 
