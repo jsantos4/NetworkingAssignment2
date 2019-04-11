@@ -41,7 +41,7 @@ public class Client {
             int dataLeft = data.length;
             short blockNumber = 0;
             byte[] blockData = new byte[512];
-            while ((dataLeft -= 512) >= 512) {
+            do {
                 System.arraycopy(data, blockNumber * 512, blockData, 0, 512);
                 Packet nextData = new Packet(blockData, ByteBuffer.allocate(2).putShort(++blockNumber).array());
                 DatagramPacket dataPacket = new DatagramPacket(nextData.getBytes(), nextData.getBytes().length, InetAddress.getLocalHost(), port);  //Change back to getByName(address)
@@ -49,6 +49,8 @@ public class Client {
                 System.out.println("Data packet: " + nextData.getBlockNumber());
                 //Receive Ack
                 socket.receive(response);
+                //Subtract data from dataLeft
+                dataLeft -= 512;
                 System.out.println("ACK packet: " + Packet.getPacket(response).getBlockNumber());
                 while (Packet.getPacket(response).getBlockNumber() != nextData.getBlockNumber()) {
                     socket.send(dataPacket);
@@ -61,14 +63,16 @@ public class Client {
                     socket.receive(response);
                 }
 
-            }  //Once out of loop, next data packet has less than 512 bytes of data
+            } while (dataLeft >= 512); //Once out of loop, next data packet has less than 512 bytes of data
             byte[] finalBlockData = new byte[dataLeft];
             System.arraycopy(data, blockNumber * 512, finalBlockData, 0, dataLeft);
             Packet nextData = new Packet(finalBlockData, ByteBuffer.allocate(2).putShort(++blockNumber).array());
             DatagramPacket finalPacket = new DatagramPacket(nextData.getBytes(), nextData.getBytes().length, InetAddress.getLocalHost(), port); //Change back to getByName(address)
             socket.send(finalPacket);
+            System.out.println("Data packet: " + nextData.getBlockNumber());
             socket.receive(response);
-            System.out.println(Packet.getPacket(packet).toString());
+            System.out.println("ACK packet: " + Packet.getPacket(response).getBlockNumber());
+
             while (response.getData()[1] == (byte) 3) {
                 System.out.println("Error code: " + response.getData()[3]);
                 socket.send(finalPacket);
