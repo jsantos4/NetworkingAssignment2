@@ -1,5 +1,6 @@
 import java.io.*;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.Scanner;
 
@@ -33,11 +34,7 @@ public class Main {
             getAddress();
             server.getPort();
             System.out.println("Enter path to store file including file name (does not have to match sent file's name)");
-            try {
-                server.receive(scanner.nextLine());
-            } catch (SocketException e) {
-                e.printStackTrace();
-            }
+            server.receive(scanner.nextLine());
         }
     }
 
