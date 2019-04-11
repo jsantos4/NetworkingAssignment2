@@ -2,9 +2,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.ServerSocket;
+import java.net.*;
 
 public class Server {
     private ServerSocket tcpSocket;
@@ -19,7 +17,7 @@ public class Server {
         }
     }
 
-    public void receive() {
+    public void receive() throws SocketException {
         DatagramPacket packet = new DatagramPacket(new byte[516], 516);
         String uploadFolder = "/home/jsantos4/Documents/csc445/assignment2/";
         File file = new File(uploadFolder);
@@ -29,6 +27,7 @@ public class Server {
         try {
             System.out.println("Listening");
             do {
+                udpSocket.setSoTimeout(30000);
                 udpSocket.receive(packet);
                 if (packet.getData()[1] == 0) {
                     byte[] blockNumber = {0, 0};

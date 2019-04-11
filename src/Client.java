@@ -19,7 +19,6 @@ public class Client {
     public void send(String fileName) {
         try {
             socket = new DatagramSocket();
-            socket.setSoTimeout(5000);
             File file = new File(fileName);
             byte[] data = Files.readAllBytes(file.toPath());
 
