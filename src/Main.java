@@ -1,9 +1,6 @@
-import org.omg.CORBA.TRANSACTION_MODE;
-
 import java.io.*;
 import java.net.SocketException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
@@ -30,15 +27,14 @@ public class Main {
             boolean[] selection = parseOptions(options);
 
             Client client = new Client(dest, udpPort, selection);
-            client.send("C:\\Users\\BAgunner300\\Documents\\csc445\\NetworkingAssignment2\\resources\\Interior2.jpg");   //Will be client.send(path);
+            client.send(path);
 
         } else {
             getAddress();
             server.getPort();
             System.out.println("Enter path to store file including file name (does not have to match sent file's name)");
             try {
-                //server.receive(scanner.next());
-                server.receive("/home/jsantos4/Documents/csc445/");
+                server.receive(scanner.nextLine());
             } catch (SocketException e) {
                 e.printStackTrace();
             }

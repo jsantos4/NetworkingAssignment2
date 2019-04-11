@@ -15,7 +15,7 @@ public class Server {
         }
     }
 
-    public void receive(String filePath) throws SocketException{
+    public void receive(String filePath) {
         DatagramPacket packet = new DatagramPacket(new byte[516], 516);
         Packet ACK;
         ArrayList<Byte> fileData = new ArrayList<>();
@@ -76,6 +76,7 @@ public class Server {
                     System.out.println("Invalid path");
                     e.printStackTrace();
                 }
+                System.out.println("New file created");
             }
             //Convert array list to array so we can write it into the file
             byte[] bytesToWrite = new byte[fileData.size()];
@@ -89,10 +90,11 @@ public class Server {
             outputStream.flush();
             outputStream.close();
 
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
+        System.out.println("File successfully written");
     }
 
     public void getPort() {
