@@ -1,6 +1,9 @@
+import org.omg.CORBA.TRANSACTION_MODE;
+
 import java.io.*;
 import java.net.SocketException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
@@ -17,20 +20,41 @@ public class Main {
             String dest = "localhost"; //scanner.next();
             System.out.println("Enter port");
             int udpPort = scanner.nextInt();
-            Client client = new Client(dest, udpPort);
             System.out.println("Enter path to file you wish to send");
-            //client.send(scanner.next());
-            client.send("/home/jsantos4/Documents/csc445/NetworkingAssignment2/resources/Interior2.jpg");
+            String path = scanner.nextLine();
+            System.out.println("Select options for send: IPv4/IPv6, Sequential/SlidingWindows, no drops/1% drops (-4/6 -s/w -n/d)");
+            String options = scanner.nextLine();
+            boolean[] selection = parseOptions(options);
+            Client client = new Client(dest, udpPort, selection);
+
+            client.send("/home/jsantos4/Documents/csc445/NetworkingAssignment2/resources/Interior2.jpg");   //Will be client.send(path);
         } else {
             getAddress();
             server.getPort();
             System.out.println("Enter path to store file including file name (does not have to match sent file's name)");
             try {
-                server.receive(scanner.next());
+                //server.receive(scanner.next());
+                server.receive("/home/jsantos4/Documents/csc445/");
             } catch (SocketException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private static boolean[] parseOptions(String options) {
+        boolean[] selection = new boolean[3];
+
+        if (options.contains("6"))
+            selection[0] = true;
+        if (options.contains("w"))
+            selection[1] = true;
+        if (options.contains("d"))
+            selection[2] = true;
+
+        //Options are not ordered. If any of these characters appear in options input, the tftp will act accordingly
+        //Otherwise default behavior will be, IPv4, sequential, and no drops
+
+        return selection;
     }
 
     private static void getAddress() {

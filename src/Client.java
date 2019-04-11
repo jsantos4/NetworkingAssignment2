@@ -1,30 +1,39 @@
 import java.io.File;
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Client {
     private static DatagramSocket socket;
     private String address;
     private int port;
+    private boolean addressProtocol, packetProtocol, dropProtocol;
 
-    public Client(String address, int port) {
+    public Client(String address, int port, boolean[] options) {
         this.address = address;
         this.port = port;
+        addressProtocol = options[0];
+        packetProtocol = options[1];
+        dropProtocol = options[2];
     }
 
-    public void send(String fileName) {
+        public void send(String fileName) {
         try {
             socket = new DatagramSocket();
             File file = new File(fileName);
             byte[] data = Files.readAllBytes(file.toPath());
-
             Packet reqPacket = new Packet(fileName);
-            DatagramPacket packet = new DatagramPacket(reqPacket.getBytes(), reqPacket.getBytes().length, InetAddress.getLocalHost(), port);    //Change back to getByName(address)
             DatagramPacket response = new DatagramPacket(new byte[516], 516);
+            DatagramPacket packet;
+
+            if (addressProtocol) {
+                packet = new DatagramPacket(reqPacket.getBytes(), reqPacket.getBytes().length, Inet6Address.getByName(address), port);
+            } else {
+                packet = new DatagramPacket(reqPacket.getBytes(), reqPacket.getBytes().length, Inet4Address.getByName(address), port);
+            }
+
 
             //Send WRQ
             socket.send(packet);
@@ -41,11 +50,15 @@ public class Client {
             int dataLeft = data.length;
             short blockNumber = 0;
             byte[] blockData = new byte[512];
+            int dropLottory = 101;
+            if (dropProtocol)
+                dropLottory = ThreadLocalRandom.current().nextInt(100);
             do {
                 System.arraycopy(data, blockNumber * 512, blockData, 0, 512);
                 Packet nextData = new Packet(blockData, ByteBuffer.allocate(2).putShort(++blockNumber).array());
                 DatagramPacket dataPacket = new DatagramPacket(nextData.getBytes(), nextData.getBytes().length, InetAddress.getLocalHost(), port);  //Change back to getByName(address)
-                socket.send(dataPacket);
+                if (ThreadLocalRandom.current().nextInt(100) != dropLottory)
+                    socket.send(dataPacket);
                 System.out.println("Data packet: " + nextData.getBlockNumber());
                 //Receive Ack
                 socket.receive(response);
@@ -78,6 +91,8 @@ public class Client {
                 socket.send(finalPacket);
                 socket.receive(response);
             }
+
+            socket.close();
 
         } catch (IOException e) {
             e.printStackTrace();

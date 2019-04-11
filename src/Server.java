@@ -1,5 +1,3 @@
-import com.sun.xml.internal.bind.v2.runtime.reflect.Lister;
-
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
@@ -19,31 +17,43 @@ public class Server {
 
     public void receive(String filePath) throws SocketException{
         DatagramPacket packet = new DatagramPacket(new byte[516], 516);
+        Packet ACK;
         filePath = "/home/jsantos4/Documents/csc445/";
         ArrayList<Byte> fileData = new ArrayList<>();
         byte[] blockData;
+        byte[] blockNumber = {0, 0};
         int dataSize = 516;
         try {
             System.out.println("Listening");
+            udpSocket.receive(packet);
+            udpSocket.setSoTimeout(2000);       //Once we get our first data packet, set a timeout so we can deal with dropped packets
+            if (packet.getData()[1] == 0) {         //If packet was request, set file path, send ACK with 0 block number
+                filePath += "piccy.jpg";
+                ACK = new Packet(blockNumber);
+                udpSocket.send(new DatagramPacket(ACK.getBytes(), 4, packet.getAddress(), packet.getPort()));
+            }
+            //Start loop for data packets
             do {
-                udpSocket.setSoTimeout(30000);
-                udpSocket.receive(packet);
-                if (packet.getData()[1] == 0) {         //If packet was request, set file path, send ACK with 0 block number
-                    byte[] blockNumber = {0, 0};
-                    filePath += "piccy.jpg";
-                    Packet ACK = new Packet(blockNumber);
+                try {
+                    udpSocket.receive(packet);
+                } catch (SocketTimeoutException e) {
+                    System.out.println("Lost a packet, resending last ACK");
+                    ACK = new Packet(blockNumber);
                     udpSocket.send(new DatagramPacket(ACK.getBytes(), 4, packet.getAddress(), packet.getPort()));
-                } else if (packet.getData()[1] == 1) {  //If packet was data, get block data, add it to file data, send ACK with appropriate block number
-                    byte[] blockNumber = {packet.getData()[2], packet.getData()[3]};
-                    dataSize = packet.getLength();
-                    blockData =  new byte[dataSize - 4];    //Size of data in packet, ie. packet - 4 bytes for opcode and block number
-                    System.arraycopy(packet.getData(), 4, blockData, 0, dataSize - 4);      //Copy data from packet starting after opcode and block number
-                    for (byte b : blockData) {
-                        fileData.add(b);
-                    }
-                    Packet ACK = new Packet(blockNumber);
-                    udpSocket.send(new DatagramPacket(ACK.getBytes(), 4, packet.getAddress(), packet.getPort()));
+                    continue;                       //If we time out, resend the last ACK and reiterate
                 }
+
+                blockNumber[0] = packet.getData()[2];
+                blockNumber[1] = packet.getData()[3];
+                dataSize = packet.getLength();
+                blockData =  new byte[dataSize - 4];    //Size of data in packet, ie. packet - 4 bytes for opcode and block number
+                System.arraycopy(packet.getData(), 4, blockData, 0, dataSize - 4);      //Copy data from packet starting after opcode and block number
+                for (byte b : blockData) {
+                    fileData.add(b);
+                }
+
+                ACK = new Packet(blockNumber);
+                udpSocket.send(new DatagramPacket(ACK.getBytes(), 4, packet.getAddress(), packet.getPort()));
             } while (dataSize == 516);
 
             writeFile(fileData, filePath);
@@ -52,6 +62,7 @@ public class Server {
             e.printStackTrace();
         }
 
+        udpSocket.close();
     }
 
     private void writeFile(ArrayList<Byte> fileData, String filePath) {
