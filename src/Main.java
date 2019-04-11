@@ -1,4 +1,5 @@
 import java.io.*;
+import java.net.SocketException;
 import java.net.URL;
 import java.util.Scanner;
 
@@ -22,7 +23,11 @@ public class Main {
         } else {
             getAddress();
             server.getPort();
-            server.receive();
+            try {
+                server.receive();
+            } catch (SocketException e) {
+                e.printStackTrace();
+            }
         }
     }
 
