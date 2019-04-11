@@ -12,22 +12,26 @@ public class Main {
         int side;
         System.out.println("Client = 0, Server = 1");
         Scanner scanner = new Scanner(System.in);
-        side = scanner.nextInt();
+        side = Integer.parseInt(scanner.nextLine());
         Server server = new Server();
 
         if (side == 0) {
             System.out.println("Enter destination address ");
-            String dest = "localhost"; //scanner.next();
+            String dest = scanner.nextLine();
+
             System.out.println("Enter port");
-            int udpPort = scanner.nextInt();
+            int udpPort = Integer.parseInt(scanner.nextLine());
+
             System.out.println("Enter path to file you wish to send");
             String path = scanner.nextLine();
+
             System.out.println("Select options for send: IPv4/IPv6, Sequential/SlidingWindows, no drops/1% drops (-4/6 -s/w -n/d)");
             String options = scanner.nextLine();
             boolean[] selection = parseOptions(options);
-            Client client = new Client(dest, udpPort, selection);
 
-            client.send("/home/jsantos4/Documents/csc445/NetworkingAssignment2/resources/Interior2.jpg");   //Will be client.send(path);
+            Client client = new Client(dest, udpPort, selection);
+            client.send("C:\\Users\\BAgunner300\\Documents\\csc445\\NetworkingAssignment2\\resources\\Interior2.jpg");   //Will be client.send(path);
+
         } else {
             getAddress();
             server.getPort();

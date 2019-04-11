@@ -88,10 +88,6 @@ public class Packet {
         return packetBytes;
     }
 
-    public String getFileName() {
-        return fileName;
-    }
-
     public int getBlockNumber() {
         return ((packetBytes[2] & 0xff) << 8) | (packetBytes[3] & 0xff);
     }

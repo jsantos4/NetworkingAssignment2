@@ -18,7 +18,6 @@ public class Server {
     public void receive(String filePath) throws SocketException{
         DatagramPacket packet = new DatagramPacket(new byte[516], 516);
         Packet ACK;
-        filePath = "/home/jsantos4/Documents/csc445/";
         ArrayList<Byte> fileData = new ArrayList<>();
         byte[] blockData;
         byte[] blockNumber = {0, 0};

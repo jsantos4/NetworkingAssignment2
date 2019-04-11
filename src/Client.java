@@ -34,7 +34,6 @@ public class Client {
                 packet = new DatagramPacket(reqPacket.getBytes(), reqPacket.getBytes().length, Inet4Address.getByName(address), port);
             }
 
-
             //Send WRQ
             socket.send(packet);
 
@@ -50,14 +49,14 @@ public class Client {
             int dataLeft = data.length;
             short blockNumber = 0;
             byte[] blockData = new byte[512];
-            int dropLottory = 101;
+            int dropLottery = 101;
             if (dropProtocol)
-                dropLottory = ThreadLocalRandom.current().nextInt(100);
+                dropLottery = ThreadLocalRandom.current().nextInt(100);
             do {
                 System.arraycopy(data, blockNumber * 512, blockData, 0, 512);
                 Packet nextData = new Packet(blockData, ByteBuffer.allocate(2).putShort(++blockNumber).array());
-                DatagramPacket dataPacket = new DatagramPacket(nextData.getBytes(), nextData.getBytes().length, InetAddress.getLocalHost(), port);  //Change back to getByName(address)
-                if (ThreadLocalRandom.current().nextInt(100) != dropLottory)
+                DatagramPacket dataPacket = new DatagramPacket(nextData.getBytes(), nextData.getBytes().length, packet.getAddress(), port);
+                if (ThreadLocalRandom.current().nextInt(100) != dropLottery)
                     socket.send(dataPacket);
                 System.out.println("Data packet: " + nextData.getBlockNumber());
                 //Receive Ack
@@ -80,7 +79,7 @@ public class Client {
             byte[] finalBlockData = new byte[dataLeft];
             System.arraycopy(data, blockNumber * 512, finalBlockData, 0, dataLeft);
             Packet nextData = new Packet(finalBlockData, ByteBuffer.allocate(2).putShort(++blockNumber).array());
-            DatagramPacket finalPacket = new DatagramPacket(nextData.getBytes(), nextData.getBytes().length, InetAddress.getLocalHost(), port); //Change back to getByName(address)
+            DatagramPacket finalPacket = new DatagramPacket(nextData.getBytes(), nextData.getBytes().length, packet.getAddress(), port);
             socket.send(finalPacket);
             System.out.println("Data packet: " + nextData.getBlockNumber());
             socket.receive(response);
