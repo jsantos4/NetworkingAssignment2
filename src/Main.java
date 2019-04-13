@@ -13,18 +13,15 @@ public class Main {
         if (side == 0) {
             System.out.println("Enter destination address ");
             String dest = scanner.nextLine();
-            dest = "localhost";
 
             System.out.println("Enter port");
             int udpPort = Integer.parseInt(scanner.nextLine());
 
             System.out.println("Enter path to file you wish to send");
             String path = scanner.nextLine();
-            path = "C:\\Users\\BAgunner300\\Documents\\csc445\\NetworkingAssignment2\\resources\\Interior2.jpg";
 
             System.out.println("Select options for send: IPv4/IPv6, Sequential/SlidingWindows, no drops/1% drops (-4/6 -s/w -n/d)");
             String options = scanner.nextLine();
-            options = "wd";
             boolean[] selection = parseOptions(options);
 
             Client client = new Client(dest, udpPort, selection);
