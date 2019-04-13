@@ -26,6 +26,7 @@ public class Server {
         try {
             System.out.println("Listening");
             udpSocket.receive(packet);
+            udpSocket.setSoTimeout(3000);
             if (packet.getData()[1] == 0) {         //If packet was request, check protocol then send ACK with 0 block number
                 ACK = new Packet(blockNumber);
                 udpSocket.send(new DatagramPacket(ACK.getBytes(), 4, packet.getAddress(), packet.getPort()));

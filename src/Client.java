@@ -35,9 +35,9 @@ public class Client {
             DatagramPacket packetForSend;
 
             if (addressProtocol) {
-                packetForSend = new DatagramPacket(reqPacket.getBytes(), 516, Inet6Address.getByName(address), port);
+                packetForSend = new DatagramPacket(reqPacket.getBytes(), reqPacket.getBytes().length, Inet6Address.getByName(address), port);
             } else {
-                packetForSend = new DatagramPacket(reqPacket.getBytes(), 516, Inet4Address.getByName(address), port);
+                packetForSend = new DatagramPacket(reqPacket.getBytes(), reqPacket.getBytes().length, Inet4Address.getByName(address), port);
             }
 
             //Send WRQ
