@@ -44,7 +44,7 @@ public class Server {
 
                 if (Packet.getPacket(packet).getBlockNumber() > ++lpr) {
                     try {
-                        wait(2000);
+                        udpSocket.wait(2000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
