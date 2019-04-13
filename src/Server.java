@@ -26,13 +26,14 @@ public class Server {
         try {
             System.out.println("Listening");
             udpSocket.receive(packet);
-            udpSocket.setSoTimeout(2000);       //Once we get our first data packet, set a timeout so we can deal with dropped packets
+            udpSocket.setSoTimeout(5000);       //Once we get our first data packet, set a timeout so we can deal with dropped packets
             if (packet.getData()[1] == 0) {         //If packet was request, check protocol then send ACK with 0 block number
                 ACK = new Packet(blockNumber);
                 udpSocket.send(new DatagramPacket(ACK.getBytes(), 4, packet.getAddress(), packet.getPort()));
             }
             //Start loop for data packets
             do {
+
                 udpSocket.receive(packet);
 
                 blockNumber[0] = packet.getData()[2];
@@ -51,8 +52,16 @@ public class Server {
 
             writeFile(fileData, filePath);
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (SocketTimeoutException e) {
+            System.out.println("Lost a packet, resending last ACK");
+            ACK = new Packet(blockNumber);
+            try {
+                udpSocket.send(new DatagramPacket(ACK.getBytes(), 4, packet.getAddress(), packet.getPort()));
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        } catch (IOException e2) {
+            e2.printStackTrace();
         }
 
         udpSocket.close();
