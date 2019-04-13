@@ -147,6 +147,8 @@ public class Client {
 
             }
 
+            System.out.println("Initial window sent");
+
             socket.receive(response);
 
             while (dataLeft > 0) {
@@ -159,6 +161,7 @@ public class Client {
 
                 nextData = new Packet(blockData, ByteBuffer.allocate(2).putShort(++blockNumber).array());
                 packetForSend.setData(nextData.getBytes());
+                socket.send(packetForSend);
 
                 dataLeft = data.length - (blockNumber * 512);
 
