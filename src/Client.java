@@ -164,7 +164,7 @@ public class Client {
 
             socket.receive(response);
 
-            while (dataLeft > 512 && blockNumber - lastAckReceived < windowSize) {
+            do {
                 System.arraycopy(data, blockNumber * 512, blockData, 0, 512);
 
                 nextData = new Packet(blockData, ByteBuffer.allocate(2).putShort(++blockNumber).array());
@@ -184,7 +184,7 @@ public class Client {
                 }
                 lastAckReceived = Packet.getPacket(response).getBlockNumber();
                 dataLeft = data.length - (blockNumber * 512);
-            }
+            }while (dataLeft > 512 && blockNumber - lastAckReceived < windowSize);
 
             byte[] finalBlockData = new byte[dataLeft];
             System.arraycopy(data, blockNumber * 512, finalBlockData, 0, dataLeft);
@@ -210,7 +210,8 @@ public class Client {
 
 
     private static double calcThroughput(long time, int size) {
-        return (((double) size * 8.0)/ TimeUnit.SECONDS.convert(time, TimeUnit.NANOSECONDS)) / 1000000.0;
+        time = time / 1000000;
+        return Math.round((((double) size * 8.0)/ (double) time)*1000) / 1000.0;
     }
 
 }
