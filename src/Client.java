@@ -184,9 +184,12 @@ public class Client {
             DatagramPacket finalPacket = new DatagramPacket(nextData.getBytes(), nextData.getBytes().length, packetForSend.getAddress(), port);
             socket.send(finalPacket);
             System.out.println("Data packet: " + nextData.getBlockNumber());
-            socket.receive(response);
-            System.out.println("ACK packet: " + Packet.getPacket(response).getBlockNumber());
 
+            while (Packet.getPacket(response).getBlockNumber() < nextData.getBlockNumber()) {
+                socket.receive(response);
+            }
+
+            System.out.println("ACK packet: " + Packet.getPacket(response).getBlockNumber());
             socket.close();
 
         } catch (IOException exception) {

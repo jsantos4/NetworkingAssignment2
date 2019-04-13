@@ -13,7 +13,7 @@ public class Main {
         if (side == 0) {
             System.out.println("Enter destination address ");
             String dest = scanner.nextLine();
-            dest = "129.3.20.26";
+            dest = "localhost";
 
             System.out.println("Enter port");
             int udpPort = Integer.parseInt(scanner.nextLine());
@@ -24,7 +24,7 @@ public class Main {
 
             System.out.println("Select options for send: IPv4/IPv6, Sequential/SlidingWindows, no drops/1% drops (-4/6 -s/w -n/d)");
             String options = scanner.nextLine();
-            options = "wd";
+            options = "w";
             boolean[] selection = parseOptions(options);
 
             Client client = new Client(dest, udpPort, selection);

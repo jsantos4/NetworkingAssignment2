@@ -89,7 +89,11 @@ public class Packet {
     }
 
     public int getBlockNumber() {
-        return ((packetBytes[2] & 0xff) << 8) | (packetBytes[3] & 0xff);
+        if (packetBytes[1] == 0)
+            return 0;
+        else
+            return ((packetBytes[2] & 0xff) << 8) | (packetBytes[3] & 0xff);
+
     }
 
     public String toString() {
