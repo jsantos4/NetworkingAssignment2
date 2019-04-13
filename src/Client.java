@@ -157,7 +157,6 @@ public class Client {
 
             while (dataLeft > 512 && blockNumber - lastAckReceived < windowSize) {
                 System.arraycopy(data, blockNumber * 512, blockData, 0, 512);
-                lastAckReceived = Packet.getPacket(response).getBlockNumber();
 
                 nextData = new Packet(blockData, ByteBuffer.allocate(2).putShort(++blockNumber).array());
                 packetForSend.setData(nextData.getBytes());
@@ -173,7 +172,7 @@ public class Client {
                     blockNumber = (short) lastAckReceived;
                     continue;
                 }
-
+                lastAckReceived = Packet.getPacket(response).getBlockNumber();
                 dataLeft = data.length - (blockNumber * 512);
             }
 

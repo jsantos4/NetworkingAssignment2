@@ -35,7 +35,7 @@ public class Main {
             getAddress();
             server.getPort();
             System.out.println("Enter path to store file including file name (does not have to match sent file's name)");
-            server.receive(scanner.nextLine(), true);
+            server.receive(scanner.nextLine());
         }
     }
 

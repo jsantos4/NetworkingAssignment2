@@ -13,7 +13,7 @@ public class Server {
         }
     }
 
-    public void receive(String filePath, boolean protocol) {
+    public void receive(String filePath) {
 
         DatagramPacket packet = new DatagramPacket(new byte[516], 516);
         Packet ACK;
@@ -34,7 +34,13 @@ public class Server {
             //Start loop for data packets
             do {
 
-                udpSocket.receive(packet);
+                try {
+                    udpSocket.receive(packet);
+                } catch (SocketTimeoutException timeout) {
+                    System.out.println("Lost a packet, resending last ACK");
+                    ACK = new Packet(blockNumber);
+                    udpSocket.send(new DatagramPacket(ACK.getBytes(), 4, packet.getAddress(), packet.getPort()));
+                }
 
                 blockNumber[0] = packet.getData()[2];
                 blockNumber[1] = packet.getData()[3];
@@ -52,16 +58,8 @@ public class Server {
 
             writeFile(fileData, filePath);
 
-        } catch (SocketTimeoutException e) {
-            System.out.println("Lost a packet, resending last ACK");
-            ACK = new Packet(blockNumber);
-            try {
-                udpSocket.send(new DatagramPacket(ACK.getBytes(), 4, packet.getAddress(), packet.getPort()));
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
-        } catch (IOException e2) {
-            e2.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         udpSocket.close();
