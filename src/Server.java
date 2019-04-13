@@ -13,7 +13,7 @@ public class Server {
         }
     }
 
-    public void receive(String filePath) {
+    public void receive(String filePath, boolean protocol) {
 
         DatagramPacket packet = new DatagramPacket(new byte[516], 516);
         Packet ACK;
@@ -35,7 +35,18 @@ public class Server {
             do {
                 lpr = Packet.getPacket(packet).getBlockNumber();
 
-                udpSocket.receive(packet);
+                if (protocol)       //If protocol is sliding windows, receive
+                    udpSocket.receive(packet);
+                else {              //If protocol is sequential, resend last ACK with timeout
+                    try {
+                        udpSocket.receive(packet);
+                    } catch (SocketTimeoutException e) {
+                        System.out.println("Lost a packet, resending last ACK");
+                        ACK = new Packet(blockNumber);
+                        udpSocket.send(new DatagramPacket(ACK.getBytes(), 4, packet.getAddress(), packet.getPort()));
+                        continue;                       //If we time out, resend the last ACK and reiterate
+                    }
+                }
 
                 while (Packet.getPacket(packet).getBlockNumber() != lpr + 1) {      //If received packet is beyond the next expected packet hold out until client goes back N and sends the correct one
                     udpSocket.receive(packet);

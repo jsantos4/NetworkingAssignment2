@@ -1,6 +1,7 @@
 import java.io.*;
 import java.net.URL;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
 
@@ -25,14 +26,18 @@ public class Main {
             boolean[] selection = parseOptions(options);
 
             Client client = new Client(dest, udpPort, selection);
-            client.send(path);
+            System.out.println("Throughput speed: " + client.send(path) + "Mb/s");
+
 
         } else {
             Server server = new Server();
             getAddress();
             server.getPort();
             System.out.println("Enter path to store file including file name (does not have to match sent file's name)");
-            server.receive(scanner.nextLine());
+            String filePath = scanner.nextLine();
+            System.out.println("Receiving sequentially or with sliding windows? (s/w)");
+            boolean protocol = parseOptions(scanner.nextLine())[1];
+            server.receive(filePath, protocol);
         }
     }
 

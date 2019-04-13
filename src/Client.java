@@ -4,6 +4,7 @@ import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
 public class Client {
     private static DatagramSocket socket;
@@ -19,13 +20,14 @@ public class Client {
         dropProtocol = options[2];
     }
 
-    public void send(String fileName) {
+    public double send(String fileName) {
 
         if (packetProtocol) {
-            sendSliding(fileName);
-            return;
+            return sendSliding(fileName);
         }
 
+        long time = 0;
+        int dataSize = 0;
         try {
             socket = new DatagramSocket();
             File file = new File(fileName);
@@ -46,6 +48,7 @@ public class Client {
             //Receive initial ACK or ERR
             socket.receive(response);
             System.out.println("ACK packet: " + Packet.getPacket(response).getBlockNumber());
+            time = System.nanoTime();
             while (Packet.getPacket(response).getBlockNumber() != 0) {
                 socket.send(packetForSend);
                 socket.receive(response);
@@ -53,6 +56,7 @@ public class Client {
 
             //Send data while receiving ACKs in between each DATA packet
             int dataLeft = data.length;
+            dataSize = data.length;
             short blockNumber = 0;
             byte[] blockData = new byte[512];
             int dropLottery = 101;
@@ -65,12 +69,10 @@ public class Client {
                 packetForSend.setData(nextData.getBytes());
                 if (ThreadLocalRandom.current().nextInt(100) != dropLottery)
                     socket.send(packetForSend);
-                System.out.println("Data packet: " + nextData.getBlockNumber());
                 //Receive Ack
                 socket.receive(response);
                 //Subtract data from dataLeft
                 dataLeft -= 512;
-                System.out.println("ACK packet: " + Packet.getPacket(response).getBlockNumber());
                 while (Packet.getPacket(response).getBlockNumber() != nextData.getBlockNumber()) {
                     socket.send(packetForSend);
                     socket.receive(response);
@@ -98,15 +100,19 @@ public class Client {
                 socket.send(finalPacket);
                 socket.receive(response);
             }
+            time = System.nanoTime() - time;
 
             socket.close();
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return calcThroughput(time, dataSize);
     }
 
-    private void sendSliding(String fileName) {
+    private double sendSliding(String fileName) {
+        long time = 0;
+        int dataSize = 0;
         try {
             socket = new DatagramSocket();
             File file = new File(fileName);
@@ -134,16 +140,19 @@ public class Client {
 
             socket.setSoTimeout(3000);
             int dataLeft = data.length;
+            dataSize = data.length;
             short blockNumber = 0;
             int lastAckReceived = 1;
             byte[] blockData = new byte[512];
             Packet nextData;
 
             int dropLottery = 101;
-            if (dropProtocol)
+            if (dropProtocol) {
                 dropLottery = ThreadLocalRandom.current().nextInt(100);
+            }
 
             //Send initial window
+            time = System.nanoTime();
             for (int i = 0; i < windowSize; i++) {
                 System.arraycopy(data, blockNumber * 512, blockData, 0, 512);
                 nextData = new Packet(blockData, ByteBuffer.allocate(2).putShort(++blockNumber).array());
@@ -187,6 +196,7 @@ public class Client {
             while (Packet.getPacket(response).getBlockNumber() < nextData.getBlockNumber()) {
                 socket.receive(response);
             }
+            time = System.nanoTime() - time;
 
             System.out.println("ACK packet: " + Packet.getPacket(response).getBlockNumber());
             socket.close();
@@ -195,5 +205,12 @@ public class Client {
             exception.printStackTrace();
         }
 
+        return calcThroughput(time, dataSize);
     }
+
+
+    private static double calcThroughput(long time, int size) {
+        return (((double) size * 8.0)/ TimeUnit.SECONDS.convert(time, TimeUnit.NANOSECONDS)) / 1000000.0;
+    }
+
 }
