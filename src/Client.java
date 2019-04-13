@@ -4,6 +4,7 @@ import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
 public class Client {
     private static DatagramSocket socket;
@@ -161,8 +162,9 @@ public class Client {
                 nextData = new Packet(blockData, ByteBuffer.allocate(2).putShort(++blockNumber).array());
                 packetForSend.setData(nextData.getBytes());
 
-                if (ThreadLocalRandom.current().nextInt(100) != dropLottery)
+                if (ThreadLocalRandom.current().nextInt(100) != dropLottery) {
                     socket.send(packetForSend);
+                }
 
 
                 try {

@@ -1,6 +1,7 @@
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class Server {
     private DatagramSocket udpSocket;
@@ -21,7 +22,7 @@ public class Server {
         byte[] blockData;
         byte[] blockNumber = {0, 0};
         int dataSize = 516;
-        short lpr = 0;
+        int lpr = 0;
 
         try {
             System.out.println("Listening");
@@ -33,6 +34,7 @@ public class Server {
             }
             //Start loop for data packets
             do {
+                lpr = Packet.getPacket(packet).getBlockNumber();
 
                 try {
                     udpSocket.receive(packet);
@@ -44,7 +46,17 @@ public class Server {
 
                 blockNumber[0] = packet.getData()[2];
                 blockNumber[1] = packet.getData()[3];
-                System.out.println(Packet.getPacket(packet).getBlockNumber());
+
+                if (Packet.getPacket(packet).getBlockNumber() > lpr + 1) {
+                    try {
+                        TimeUnit.SECONDS.sleep(2);
+                    } catch (InterruptedException e ) {
+                        e.printStackTrace();
+                    }
+
+                    continue;
+                }
+
                 dataSize = packet.getLength();
                 blockData =  new byte[dataSize - 4];    //Size of data in packet, ie. packet - 4 bytes for opcode and block number
                 System.arraycopy(packet.getData(), 4, blockData, 0, dataSize - 4);      //Copy data from packet starting after opcode and block number
@@ -54,6 +66,7 @@ public class Server {
 
                 ACK = new Packet(blockNumber);
                 udpSocket.send(new DatagramPacket(ACK.getBytes(), 4, packet.getAddress(), packet.getPort()));
+
             } while (dataSize == 516);
 
             writeFile(fileData, filePath);
