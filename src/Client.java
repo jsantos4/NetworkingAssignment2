@@ -151,7 +151,7 @@ public class Client {
 
             socket.receive(response);
 
-            while (dataLeft > 0) {
+            while (dataLeft > 512) {
                 System.arraycopy(data, blockNumber * 512, blockData, 0, 512);
                 lastAckReceived = Packet.getPacket(response).getBlockNumber();
 
@@ -167,6 +167,17 @@ public class Client {
 
                 socket.receive(response);
             }
+
+            byte[] finalBlockData = new byte[dataLeft];
+            System.arraycopy(data, blockNumber * 512, finalBlockData, 0, dataLeft);
+            nextData = new Packet(finalBlockData, ByteBuffer.allocate(2).putShort(++blockNumber).array());
+            DatagramPacket finalPacket = new DatagramPacket(nextData.getBytes(), nextData.getBytes().length, packetForSend.getAddress(), port);
+            socket.send(finalPacket);
+            System.out.println("Data packet: " + nextData.getBlockNumber());
+            socket.receive(response);
+            System.out.println("ACK packet: " + Packet.getPacket(response).getBlockNumber());
+
+            socket.close();
 
         } catch (IOException socketException) {
             socketException.printStackTrace();
