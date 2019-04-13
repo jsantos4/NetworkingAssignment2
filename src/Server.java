@@ -27,7 +27,6 @@ public class Server {
         try {
             System.out.println("Listening");
             udpSocket.receive(packet);
-            udpSocket.setSoTimeout(3000);       //Once we get our first data packet, set a timeout so we can deal with dropped packets
             if (packet.getData()[1] == 0) {         //If packet was request, check protocol then send ACK with 0 block number
                 ACK = new Packet(blockNumber);
                 udpSocket.send(new DatagramPacket(ACK.getBytes(), 4, packet.getAddress(), packet.getPort()));
@@ -38,18 +37,12 @@ public class Server {
 
                 udpSocket.receive(packet);
 
+                while (Packet.getPacket(packet).getBlockNumber() != lpr + 1) {      //If received packet is beyond the next expected packet hold out until client goes back N and sends the correct one
+                    udpSocket.receive(packet);
+                }
+
                 blockNumber[0] = packet.getData()[2];
                 blockNumber[1] = packet.getData()[3];
-
-                if (Packet.getPacket(packet).getBlockNumber() > lpr + 1) {
-                    try {
-                        TimeUnit.SECONDS.sleep(3);
-                    } catch (InterruptedException e ) {
-                        e.printStackTrace();
-                    }
-
-                    continue;
-                }
 
                 dataSize = packet.getLength();
                 blockData =  new byte[dataSize - 4];    //Size of data in packet, ie. packet - 4 bytes for opcode and block number
