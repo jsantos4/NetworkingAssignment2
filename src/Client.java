@@ -4,7 +4,6 @@ import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
 
 public class Client {
     private static DatagramSocket socket;
@@ -133,7 +132,7 @@ public class Client {
                 socket.receive(response);
             }
 
-            socket.setSoTimeout(5000);
+            socket.setSoTimeout(3000);
             int dataLeft = data.length;
             short blockNumber = 0;
             int lastAckReceived = 1;

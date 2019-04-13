@@ -24,7 +24,7 @@ public class Main {
 
             System.out.println("Select options for send: IPv4/IPv6, Sequential/SlidingWindows, no drops/1% drops (-4/6 -s/w -n/d)");
             String options = scanner.nextLine();
-            options = "w";
+            options = "wd";
             boolean[] selection = parseOptions(options);
 
             Client client = new Client(dest, udpPort, selection);
