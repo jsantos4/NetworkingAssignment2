@@ -26,8 +26,7 @@ public class Server {
             System.out.println("Listening");
             udpSocket.receive(packet);
             udpSocket.setSoTimeout(2000);       //Once we get our first data packet, set a timeout so we can deal with dropped packets
-            if (packet.getData()[1] == 0) {         //If packet was request, set file path, send ACK with 0 block number
-                filePath += "piccy.jpg";
+            if (packet.getData()[1] == 0) {         //If packet was request, check protocol then send ACK with 0 block number
                 ACK = new Packet(blockNumber);
                 udpSocket.send(new DatagramPacket(ACK.getBytes(), 4, packet.getAddress(), packet.getPort()));
             }
@@ -62,6 +61,10 @@ public class Server {
         }
 
         udpSocket.close();
+    }
+
+    public void receiveSliding(String fileName) {
+
     }
 
     private void writeFile(ArrayList<Byte> fileData, String filePath) {
