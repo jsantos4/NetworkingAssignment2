@@ -3,12 +3,10 @@ import java.net.*;
 import java.util.ArrayList;
 
 public class Server {
-    private ServerSocket tcpSocket;
     private DatagramSocket udpSocket;
 
     public Server(){
         try {
-            tcpSocket = new ServerSocket(0);
             udpSocket = new DatagramSocket(0);
         } catch (IOException e) {
             e.printStackTrace();
@@ -16,6 +14,7 @@ public class Server {
     }
 
     public void receive(String filePath) {
+
         DatagramPacket packet = new DatagramPacket(new byte[516], 516);
         Packet ACK;
         ArrayList<Byte> fileData = new ArrayList<>();
@@ -71,6 +70,7 @@ public class Server {
         byte[] blockData;
         byte[] blockNumber = {0, 0};
         int dataSize = 516;
+
         try {
             System.out.println("Listening");
             udpSocket.receive(packet);
@@ -146,7 +146,6 @@ public class Server {
     }
 
     public void getPort() {
-        System.out.println("TCP Port: " + tcpSocket.getLocalPort());
         System.out.println("UDP Port: " + udpSocket.getLocalPort());
     }
 }

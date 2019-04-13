@@ -8,7 +8,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Client {
     private static DatagramSocket socket;
     private String address;
-    private int port, windowSize = 5;
+    private int port, windowSize = 10;
     private boolean addressProtocol, packetProtocol, dropProtocol;
 
     public Client(String address, int port, boolean[] options) {
@@ -132,11 +132,16 @@ public class Client {
                 socket.receive(response);
             }
 
+            socket.setSoTimeout(2000);
             int dataLeft = data.length;
             short blockNumber = 0;
             int lastAckReceived;
             byte[] blockData = new byte[512];
             Packet nextData;
+
+            int dropLottery = 101;
+            if (dropProtocol)
+                dropLottery = ThreadLocalRandom.current().nextInt(100);
 
             //Send initial window
             for (int i = 0; i < windowSize; i++) {
@@ -155,17 +160,22 @@ public class Client {
                 System.arraycopy(data, blockNumber * 512, blockData, 0, 512);
                 lastAckReceived = Packet.getPacket(response).getBlockNumber();
 
-                if (lastAckReceived <= blockNumber) {       //Go back N part
-                    blockNumber = (short) lastAckReceived;
-                }
-
                 nextData = new Packet(blockData, ByteBuffer.allocate(2).putShort(++blockNumber).array());
                 packetForSend.setData(nextData.getBytes());
-                socket.send(packetForSend);
 
+                if (ThreadLocalRandom.current().nextInt(100) != dropLottery)
+                    socket.send(packetForSend);
+
+
+                try {
+                    socket.receive(response);
+                } catch (SocketTimeoutException e) {
+                    System.out.println("Timeout, going back to: " + lastAckReceived);
+                    blockNumber = (short) lastAckReceived;
+                    continue;
+                }
+                
                 dataLeft = data.length - (blockNumber * 512);
-
-                socket.receive(response);
             }
 
             byte[] finalBlockData = new byte[dataLeft];
@@ -179,8 +189,8 @@ public class Client {
 
             socket.close();
 
-        } catch (IOException socketException) {
-            socketException.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
 
     }
