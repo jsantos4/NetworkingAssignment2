@@ -135,7 +135,7 @@ public class Client {
             socket.setSoTimeout(5000);
             int dataLeft = data.length;
             short blockNumber = 0;
-            int lastAckReceived;
+            int lastAckReceived = 1;
             byte[] blockData = new byte[512];
             Packet nextData;
 
@@ -149,14 +149,13 @@ public class Client {
                 nextData = new Packet(blockData, ByteBuffer.allocate(2).putShort(++blockNumber).array());
                 packetForSend.setData(nextData.getBytes());
                 socket.send(packetForSend);
-
             }
 
             System.out.println("Initial window sent");
 
             socket.receive(response);
 
-            while (dataLeft > 512) {
+            while (dataLeft > 512 && blockNumber - lastAckReceived < windowSize) {
                 System.arraycopy(data, blockNumber * 512, blockData, 0, 512);
                 lastAckReceived = Packet.getPacket(response).getBlockNumber();
 

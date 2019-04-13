@@ -33,23 +33,7 @@ public class Server {
             }
             //Start loop for data packets
             do {
-                //try {
                 udpSocket.receive(packet);
-                /*} catch (SocketTimeoutException e) {
-                    System.out.println("Lost a packet, resending last ACK");
-                    ACK = new Packet(blockNumber);
-                    udpSocket.send(new DatagramPacket(ACK.getBytes(), 4, packet.getAddress(), packet.getPort()));
-                    continue;                       //If we time out, resend the last ACK and reiterate
-                }*/
-
-                if (Packet.getPacket(packet).getBlockNumber() > ++lpr) {
-                    try {
-                        udpSocket.wait(2000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    continue;
-                }
 
                 blockNumber[0] = packet.getData()[2];
                 blockNumber[1] = packet.getData()[3];
