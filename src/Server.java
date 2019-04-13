@@ -13,7 +13,7 @@ public class Server {
         }
     }
 
-    public void receive(String filePath) {
+    public void receive(String filePath, boolean protocol) {
 
         DatagramPacket packet = new DatagramPacket(new byte[516], 516);
         Packet ACK;
@@ -21,6 +21,8 @@ public class Server {
         byte[] blockData;
         byte[] blockNumber = {0, 0};
         int dataSize = 516;
+        short lpr = 0;
+
         try {
             System.out.println("Listening");
             udpSocket.receive(packet);
@@ -31,67 +33,27 @@ public class Server {
             }
             //Start loop for data packets
             do {
-                try {
-                    udpSocket.receive(packet);
-                } catch (SocketTimeoutException e) {
+                //try {
+                udpSocket.receive(packet);
+                /*} catch (SocketTimeoutException e) {
                     System.out.println("Lost a packet, resending last ACK");
                     ACK = new Packet(blockNumber);
                     udpSocket.send(new DatagramPacket(ACK.getBytes(), 4, packet.getAddress(), packet.getPort()));
                     continue;                       //If we time out, resend the last ACK and reiterate
+                }*/
+
+                if (Packet.getPacket(packet).getBlockNumber() > ++lpr) {
+                    try {
+                        wait(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    continue;
                 }
 
                 blockNumber[0] = packet.getData()[2];
                 blockNumber[1] = packet.getData()[3];
                 System.out.println(Packet.getPacket(packet).getBlockNumber());
-                dataSize = packet.getLength();
-                blockData =  new byte[dataSize - 4];    //Size of data in packet, ie. packet - 4 bytes for opcode and block number
-                System.arraycopy(packet.getData(), 4, blockData, 0, dataSize - 4);      //Copy data from packet starting after opcode and block number
-                for (byte b : blockData) {
-                    fileData.add(b);
-                }
-
-                ACK = new Packet(blockNumber);
-                udpSocket.send(new DatagramPacket(ACK.getBytes(), 4, packet.getAddress(), packet.getPort()));
-            } while (dataSize == 516);
-
-            writeFile(fileData, filePath);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        udpSocket.close();
-    }
-
-    public void receiveSliding(String filePath) {
-        DatagramPacket packet = new DatagramPacket(new byte[516], 516);
-        Packet ACK;
-        ArrayList<Byte> fileData = new ArrayList<>();
-        byte[] blockData;
-        byte[] blockNumber = {0, 0};
-        int dataSize = 516;
-
-        try {
-            System.out.println("Listening");
-            udpSocket.receive(packet);
-            udpSocket.setSoTimeout(2000);       //Once we get our first data packet, set a timeout so we can deal with dropped packets
-            if (packet.getData()[1] == 0) {         //If packet was request, check protocol then send ACK with 0 block number
-                ACK = new Packet(blockNumber);
-                udpSocket.send(new DatagramPacket(ACK.getBytes(), 4, packet.getAddress(), packet.getPort()));
-            }
-            //Start loop for data packets
-            do {
-                try {
-                    udpSocket.receive(packet);
-                } catch (SocketTimeoutException e) {
-                    System.out.println("Lost a packet, resending last ACK");
-                    ACK = new Packet(blockNumber);
-                    udpSocket.send(new DatagramPacket(ACK.getBytes(), 4, packet.getAddress(), packet.getPort()));
-                    continue;                       //If we time out, resend the last ACK and reiterate
-                }
-
-                blockNumber[0] = packet.getData()[2];
-                blockNumber[1] = packet.getData()[3];
                 dataSize = packet.getLength();
                 blockData =  new byte[dataSize - 4];    //Size of data in packet, ie. packet - 4 bytes for opcode and block number
                 System.arraycopy(packet.getData(), 4, blockData, 0, dataSize - 4);      //Copy data from packet starting after opcode and block number

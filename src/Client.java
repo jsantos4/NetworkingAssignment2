@@ -132,7 +132,7 @@ public class Client {
                 socket.receive(response);
             }
 
-            socket.setSoTimeout(2000);
+            socket.setSoTimeout(5000);
             int dataLeft = data.length;
             short blockNumber = 0;
             int lastAckReceived;
@@ -174,7 +174,7 @@ public class Client {
                     blockNumber = (short) lastAckReceived;
                     continue;
                 }
-                
+
                 dataLeft = data.length - (blockNumber * 512);
             }
 
